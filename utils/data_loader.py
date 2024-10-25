@@ -12,7 +12,7 @@ class DataLoader:
         self.load_directory = load_directory
 
     @timer
-    def load(self, file_name, since_year=2010):
+    def load(self, file_name, since_year=2000):
         df = pd.read_csv(self.load_directory + file_name)
         df['Date'] = pd.to_datetime(df['Date'])
         df = df[(df['Date'].dt.year >= since_year)].copy()

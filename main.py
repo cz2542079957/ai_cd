@@ -12,9 +12,11 @@ if __name__ == '__main__':
     pre_init()
 
     dataloader = DataLoader()
-    # df = dataloader.load("cern.us.txt")
-    df = dataloader.load("aapl.us.txt")
-    # df = dataloader.load("aapl.us.txt")
+    df = dataloader.load("cern.us.txt", 2015)
+    # df = dataloader.load("aapl.us.txt", 2015)
+    # df = dataloader.load("msft.us.txt", 2015)
+    # df = dataloader.load("aaon.us.txt", 2015)
+
     # dataloader.show_OHLC(df)
     # dataloader.show_volume(df)
     # dataloader.show_decomposition(df)

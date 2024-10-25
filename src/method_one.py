@@ -2,9 +2,13 @@ import pandas as pd
 import plotly.graph_objs as go
 import plotly.subplots as subplots
 import xgboost as xgb
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
-from xgboost import plot_importance
+
 from sklearn.model_selection import GridSearchCV
+from xgboost import plot_importance
 
 from utils.timer import timer
 
@@ -16,6 +20,9 @@ class MethodOne:
     valid_df = None
     test_df = None
 
+    test_size = 0.20
+    valid_size = 0.20
+
     y_train = None
     X_train = None
     y_valid = None
@@ -24,7 +31,7 @@ class MethodOne:
     X_test = None
 
     model = None
-    best_params = {'gamma': 0.02, 'learning_rate': 0.05, 'max_depth': 8, 'n_estimators': 300, 'random_state': 42}
+    best_params = {'gamma': 0.02, 'learning_rate': 0.05, 'max_depth': 15, 'n_estimators': 300, 'random_state': 1024}
 
     def __init__(self, df):
         self.df = df
@@ -37,10 +44,19 @@ class MethodOne:
         self.data_clean()
 
     def calculate_MA(self, show=False):
-        self.df['EMA_9'] = self.df['Close'].ewm(9).mean().shift()
-        self.df['SMA_5'] = self.df['Close'].rolling(5).mean().shift()
-        self.df['SMA_10'] = self.df['Close'].rolling(10).mean().shift()
+        # self.df['EMA_2'] = self.df['Close'].ewm(2).mean().shift()
+        # self.df['EMA_5'] = self.df['Close'].ewm(5).mean().shift()
+        # self.df['EMA_10'] = self.df['Close'].ewm(10).mean().shift()
+        self.df['EMA_15'] = self.df['Close'].ewm(15).mean().shift()
+        self.df['EMA_20'] = self.df['Close'].ewm(20).mean().shift()
+        self.df['EMA_25'] = self.df['Close'].ewm(25).mean().shift()
+        self.df['EMA_30'] = self.df['Close'].ewm(30).mean().shift()
+        # self.df['SMA_2'] = self.df['Close'].rolling(2).mean().shift()
+        # self.df['SMA_5'] = self.df['Close'].rolling(5).mean().shift()
+        # self.df['SMA_10'] = self.df['Close'].rolling(10).mean().shift()
         self.df['SMA_15'] = self.df['Close'].rolling(15).mean().shift()
+        self.df['SMA_20'] = self.df['Close'].rolling(20).mean().shift()
+        self.df['SMA_25'] = self.df['Close'].rolling(25).mean().shift()
         self.df['SMA_30'] = self.df['Close'].rolling(30).mean().shift()
 
         if show:
@@ -93,11 +109,9 @@ class MethodOne:
 
     @timer
     def split_data(self, show=False):
-        test_size = 0.15
-        valid_size = 0.15
 
-        test_split_idx = int(self.df.shape[0] * (1 - test_size))
-        valid_split_idx = int(self.df.shape[0] * (1 - (valid_size + test_size)))
+        test_split_idx = int(self.df.shape[0] * (1 - self.test_size))
+        valid_split_idx = int(self.df.shape[0] * (1 - (self.valid_size + self.test_size)))
 
         self.train_df = self.df.loc[:valid_split_idx].copy()
         self.valid_df = self.df.loc[valid_split_idx + 1:test_split_idx].copy()
@@ -146,16 +160,28 @@ class MethodOne:
         if params is None:
             params = self.best_params
 
+        # ss = StandardScaler()
+        # feature_names = self.X_train.columns.tolist()
+        # X_train_scaled = ss.fit_transform(self.X_train)
+        # X_test_scaled = ss.transform(self.X_test)
+        # self.X_train = pd.DataFrame(X_train_scaled, columns=feature_names)
+        # self.X_test = pd.DataFrame(X_test_scaled, columns=feature_names)
+
         eval_set = [(self.X_train, self.y_train), (self.X_valid, self.y_valid)]
         self.model = xgb.XGBRegressor(**params, objective='reg:squarederror')
         self.model.fit(self.X_train, self.y_train, eval_set=eval_set, verbose=False)
         # self.model = SVR(kernel="rbf")
         # self.model.fit(self.X_train, self.y_train)
+
         # plot_importance(self.model)
 
     def predict(self, show=False):
         y_pred = self.model.predict(self.X_test)
-        test_split_idx = int(self.df.shape[0] * (1 - 0.15))
+        self.y_test.index = range(len(self.y_test))
+        print()
+        s = self.y_test[0] - y_pred[0]
+        y_pred += s
+        test_split_idx = int(self.df.shape[0] * (1 - self.test_size))
         predicted_prices = self.df.loc[test_split_idx + 1:].copy()
         predicted_prices['Close'] = y_pred
 
