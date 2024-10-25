@@ -12,8 +12,8 @@ if __name__ == '__main__':
     pre_init()
 
     dataloader = DataLoader()
-    df = dataloader.load("cern.us.txt", 2015)
-    # df = dataloader.load("aapl.us.txt", 2015)
+    # df = dataloader.load("cern.us.txt", 2015)
+    df = dataloader.load("aapl.us.txt", 2015)
     # df = dataloader.load("msft.us.txt", 2015)
     # df = dataloader.load("aaon.us.txt", 2015)
 
@@ -24,6 +24,6 @@ if __name__ == '__main__':
     method_one = MethodOne(df)
     method_one.feature_engineering(False)
     method_one.split_data(False)
-    # method_one.find_best_params()
+    method_one.find_best_params()
     method_one.train()
     method_one.predict(True)

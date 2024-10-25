@@ -31,7 +31,7 @@ class MethodOne:
     X_test = None
 
     model = None
-    best_params = {'gamma': 0.02, 'learning_rate': 0.05, 'max_depth': 15, 'n_estimators': 300, 'random_state': 1024}
+    best_params = {'gamma': 0.02, 'learning_rate': 0.05, 'max_depth': 10, 'n_estimators': 300, 'random_state': 1024}
 
     def __init__(self, df):
         self.df = df
@@ -46,14 +46,14 @@ class MethodOne:
     def calculate_MA(self, show=False):
         # self.df['EMA_2'] = self.df['Close'].ewm(2).mean().shift()
         # self.df['EMA_5'] = self.df['Close'].ewm(5).mean().shift()
-        # self.df['EMA_10'] = self.df['Close'].ewm(10).mean().shift()
+        self.df['EMA_10'] = self.df['Close'].ewm(10).mean().shift()
         self.df['EMA_15'] = self.df['Close'].ewm(15).mean().shift()
         self.df['EMA_20'] = self.df['Close'].ewm(20).mean().shift()
         self.df['EMA_25'] = self.df['Close'].ewm(25).mean().shift()
         self.df['EMA_30'] = self.df['Close'].ewm(30).mean().shift()
         # self.df['SMA_2'] = self.df['Close'].rolling(2).mean().shift()
         # self.df['SMA_5'] = self.df['Close'].rolling(5).mean().shift()
-        # self.df['SMA_10'] = self.df['Close'].rolling(10).mean().shift()
+        self.df['SMA_10'] = self.df['Close'].rolling(10).mean().shift()
         self.df['SMA_15'] = self.df['Close'].rolling(15).mean().shift()
         self.df['SMA_20'] = self.df['Close'].rolling(20).mean().shift()
         self.df['SMA_25'] = self.df['Close'].rolling(25).mean().shift()
